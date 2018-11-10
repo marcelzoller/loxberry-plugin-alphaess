@@ -1,0 +1,130 @@
+<h2>Settings Alpha ESS</h2>
+	<form method="post" data-ajax="false" name="main_form" id="main_form" action="index.cgi">
+		<input type="hidden" name="save" value="save">
+			<div class="form-group">
+				<table class="formtable" border="0" width="100%">
+					<tr>
+						<td width="25%">
+							<label id="labelusername"><TMPL_VAR BASIC.ALPHAESS_USERNAME></label>
+						</td>
+						<td width="50%">
+							<input  name="Username" type="text" class="textfield"
+								value="<TMPL_VAR NAME=USERNAME>" data-validation-error-msg="* Please enter Username">
+						</td>
+						<td width="25%">
+							&nbsp;
+							<font size="-1"><TMPL_VAR BASIC.ALPHAESS_HUSERNAME></font>
+						</td>
+					</tr>
+					<tr>
+						<td width="25%">
+							<label id="labelpassword"><TMPL_VAR BASIC.ALPHAESS_PASSWORD></label>
+						</td>
+						<td width="50%">
+						<table border=0>
+							<tr><td>
+							  <input  name="Password" type="password" id="pwinput" class="textfield"
+								value="<TMPL_VAR NAME=PASSWORD>" data-validation-error-msg="* Please enter you Password">
+							</td><td>
+									<font size="-1"><TMPL_VAR BASIC.ALPHAESS_SHPASSWORD></font>
+							</td><td>
+									<input type="checkbox" id="pwcheck" />
+							</td></tr>
+						</table>
+						
+						</td>
+						<td width="25%">
+							&nbsp;
+							<font size="-1"><TMPL_VAR BASIC.ALPHAESS_HPASSWORD></font>
+						</td>
+					</tr>
+					<tr>
+						<td width="25%">
+							<label id="labelsn"><TMPL_VAR BASIC.ALPHAESS_SN></label>
+						</td>
+						<td width="50%">
+							<input  name="SN" type="text" class="textfield"
+								value="<TMPL_VAR NAME=SN>" data-validation-error-msg="* Please enter SN">
+						</td>
+						<td width="25%">
+							&nbsp;
+							<font size="-1"><TMPL_VAR BASIC.ALPHAESS_HSN></font>
+						</td>
+					</tr>
+					<tr>
+						<td width="25%">
+							<label id="labelfbpass">Miniserver:</label>
+						</td>
+						<td width="50%">
+							<select id="miniserver" name="miniserver" data-mini="true" onchange="selMS(this);">
+								<TMPL_VAR NAME=LOXLIST>
+							</select>
+						</td>
+						<td width="25%">
+							&nbsp;
+							<font size="-1"><TMPL_VAR BASIC.ALPHAESS_HMINISERVER></font>
+						</td>
+					</tr>
+					<tr>
+						<td width="25%">
+							<label id="labeludpsend"><TMPL_VAR BASIC.ALPHAESS_HTTPSEND></label>
+						</td>
+						<td width="50%">
+						<fieldset>
+								<select  name="HTTP_Send" data-role="flipswitch">
+									<option value="0"<TMPL_VAR NAME=HTTPSENDNO>>Aus</option><option value="1" <TMPL_VAR NAME=HTTPSENDYES>>Ein</option>\n
+								</select>
+							</fieldset>
+						</td>
+						<td width="25%">
+							&nbsp;
+							<font size="-1"><TMPL_VAR BASIC.ALPHAESS_HHTTPSEND></font>
+						</td>
+					</tr>					
+					<tr>
+						<td width="25%">
+							<label id="labelmsenabled"><TMPL_VAR BASIC.ALPHAESS_HTML></label>
+						</td>
+						<td width="50%">
+						<table border=0>
+							<tr><td>
+							  <fieldset>
+								 <select id="sendhtml" name="sendhtml" data-role="flipswitch" disabled=disabled>
+									<option value="0">Aus</option>
+									<option selected=selected value="1">Ein</option>
+									</select>
+							  </fieldset>
+							</td><td>
+									&nbsp;&nbsp;<font size="-1">URL: <a href="<TMPL_VAR NAME=WEBSITE>" target=_blank"><TMPL_VAR NAME=WEBSITE></a></font>
+							</td></tr>
+						</table>
+						</td>
+						<td width="25%">
+							&nbsp;
+							<font size="-1"><TMPL_VAR BASIC.ALPHAESS_HHTML></font>
+						</td>
+					</tr>
+					<tr>
+						<td width="25%">
+							&nbsp;
+						</td>
+						<td width="50%">
+							<center>
+								<a id="btncancel" data-role="button" data-inline="true" data-mini="true" data-icon="delete" href="./index.cgi?form=1">Abbrechen</a>
+								<button type="submit" form="main_form" id="do" data-role="button" data-inline="true" data-mini="true" data-icon="check">Speichern</button>
+								<a id="button" data-icon="info" data-role="button" data-inline="true" data-mini="true" 
+								href="<TMPL_VAR NAME=LOGDATEI>" 
+								target="_blank">Logdatei</a>
+							</center>
+						</td>
+						<td width="25%">
+							&nbsp;
+						</td>
+					</tr>		
+			</table>
+		</div>
+	</form>
+
+
+
+
