@@ -23,7 +23,7 @@ my %pcfg;
 my %miniservers;
 tie %pcfg, "Config::Simple", "$lbpconfigdir/pluginconfig.cfg";
 $UDP_Port = %pcfg{'MAIN.UDP_Port'};
-#$UDP_Send_Enable = %pcfg{'MAIN.UDP_Send_Enable'};
+$UDP_Send_Enable = %pcfg{'MAIN.UDP_Send_Enable'};
 $HTTP_TEXT_Send_Enable = %pcfg{'MAIN.HTTP_TEXT_Send_Enable'};
 $MINISERVER = %pcfg{'MAIN.MINISERVER'};
 %miniservers = LoxBerry::System::get_miniservers();
@@ -136,6 +136,7 @@ $secretkey = %pcfg{'MAIN.SECRETKEY'};
 
 
 # ================== Ab hier kommt der Alpha ESS CODE by MZO ==========================
+# ====================== Alpha ESS API Spezifkation V2.1  =============================
 my $timestamp = time;	# or any other epoch timestamp
 my $time = localtime();
 LOGDEB "Epoch (UTC) timestamp: $timestamp";
@@ -246,7 +247,6 @@ if ( $resp->is_success ) {
 	$json = decode_json($message);
 	#print Dumper($json) ."<br>";
 	LOGDEB "Received json: $Dumper($json)";
-
 	
 	if ($json->{ReturnCode}== 0){
 			LOGOK "Alpha ESS Abfrage erfolgreich - GetRunningData";
@@ -258,7 +258,7 @@ if ( $resp->is_success ) {
 				$Ppv2= $f->{Ppv2}; # PV2 Watt
 				$Upv1= $f->{Upv1}; # PV1 Volt
 				$Upv2= $f->{Upv2}; # PV2 Volt
-				$SoC= $f->{Soc}; # Batterie %
+				$SoC= $f->{Soc}; # Batterie SOC%
 				$Ua= $f->{Ua}; # Grid Volt L1
 				$Ub= $f->{Ub}; # Grid Volt L2
 				$Uc= $f->{Uc}; # Grid Volt L3
@@ -332,6 +332,57 @@ if ( $resp->is_success ) {
 			# print "ReturnCode: $json->{ReturnCode}<br>";
 			LOGDEB "ReturnCode: $json->{ReturnCode}<br>";
 	}  else {
+			if($json->{ReturnCode}== 1){
+				LOGALERT "Alpha ESS: ERROR";
+			}
+			if($json->{ReturnCode}== 2){
+				LOGALERT "Alpha ESS: Required fields not filled";
+			}
+			if($json->{ReturnCode}== 3){
+				LOGALERT "Alpha ESS: Invalide timestamp";
+			}
+			if($json->{ReturnCode}== 4){
+				LOGALERT "Alpha ESS: Authentication unsuccessful ";
+			}
+			if($json->{ReturnCode}== 5){
+				LOGALERT "Alpha ESS: User alredy exist";
+			}
+			if($json->{ReturnCode}== 6){
+				LOGALERT "Alpha ESS: License alredy exist";
+			}
+			if($json->{ReturnCode}== 7){
+				LOGALERT "Alpha ESS: SN alredy exist";
+			}
+			if($json->{ReturnCode}== 8){
+				LOGALERT "Alpha ESS: Invalid API Account";
+			}
+			if($json->{ReturnCode}== 9){
+				LOGALERT "Alpha ESS: Invalid User";
+			}
+			if($json->{ReturnCode}== 10){
+				LOGALERT "Alpha ESS: Emailadess and Username do not match our records.";
+			}
+			if($json->{ReturnCode}== 11){
+				LOGALERT "Alpha ESS: Username or password are incorrect.";
+			}
+			if($json->{ReturnCode}== 12){
+				LOGALERT "Alpha ESS: Invalid SN";
+			}
+			if($json->{ReturnCode}== 13){
+				LOGALERT "Alpha ESS: The commend Dispatch failed ";
+			}
+			if($json->{ReturnCode}== 14){
+				LOGALERT "Alpha ESS: Login timeout Token";
+			}
+			if($json->{ReturnCode}== 15){
+				LOGALERT "Alpha ESS: No persission";
+			}
+			if($json->{ReturnCode}== 16){
+				LOGALERT "Alpha ESS: Abnormal Login";
+			}
+			if($json->{ReturnCode}== -1){
+				LOGALERT "Alpha ESS: Inknoe mistake";
+			}
 			LOGALERT "ReturnCode: $json->{ReturnCode}";
 			#print "ReturnCode: $json->{ReturnCode}<br>";
 		}
@@ -345,9 +396,6 @@ if ($HTTP_TEXT_Send_Enable == 1) {
 	LOGDEB "Loxone IP: $LOX_IP";
 	LOGDEB "User: $LOX_User";
 	LOGDEB "Password: $LOX_PW";
-	#$contents = get("http://$LOX_User:$LOX_PW\@$LOX_IP/dev/sps/io/AlphaESS_Soc/$SoC");
-	#LOGDEB "URL: http://$LOX_User:$LOX_PW\@$LOX_IP/dev/sps/io/AlphaESS_Soc/$SoC");
-	
 	
 	$contents = get("http://$LOX_User:$LOX_PW\@$LOX_IP/dev/sps/io/AlphaESS_Ppv1/$Ppv1"); # PV1 Watt
 	$contents = get("http://$LOX_User:$LOX_PW\@$LOX_IP/dev/sps/io/AlphaESS_Ppv2/$Ppv2"); # PV2 Watt
@@ -379,6 +427,51 @@ else {
 }
 	
 if ($UDP_Send_Enable == 1) {
+
+	#UDP Sender PORT
+	$sock = IO::Socket::INET->new(
+		Proto    => 'udp',
+		PeerPort => $UDP_Port,
+		PeerAddr => $LOX_IP,
+	) or do {
+		LOGERR "UDP Error: Could not creat socket!!!!!!";
+		#LOGEND "Operation finished NOT sucessfully.";
+		#Exit 1;
+		};
+	LOGOK "UDP Socket erfolgreich erstellt.";
+	
+	
+	$UDP_Text = "AlphaESS_Ppv1\@" .$Ppv1;
+	$UDP_Text = $UDP_Text . " AlphaESS_Ppv2\@" .$Ppv2;
+	$UDP_Text = $UDP_Text . " AlphaESS_Upv1\@" .$Upv1;
+	$UDP_Text = $UDP_Text . " AlphaESS_Upv2\@" .$Upv2;
+	$UDP_Text = $UDP_Text . " AlphaESS_SoC\@" .$SoC;
+	$UDP_Text = $UDP_Text . " AlphaESS_Ua\@" .$Ua;
+	$UDP_Text = $UDP_Text . " AlphaESS_Ub\@" .$Ub;
+	$UDP_Text = $UDP_Text . " AlphaESS_Uc\@" .$Uc;
+	$UDP_Text = $UDP_Text . " AlphaESS_Fac\@" .$Fac;
+	$UDP_Text = $UDP_Text . " AlphaESS_Tinv\@" .$Tinv;
+	$UDP_Text = $UDP_Text . " AlphaESS_InvWorkMode\@" .$InvWorkMode;
+	$UDP_Text = $UDP_Text . " AlphaESS_Batv\@" .$Batv;
+	$UDP_Text = $UDP_Text . " AlphaESS_BatC1\@" .$BatC1;
+	$UDP_Text = $UDP_Text . " AlphaESS_BatC2\@" .$BatC2;
+	$UDP_Text = $UDP_Text . " AlphaESS_BatC3\@" .$BatC3;
+	$UDP_Text = $UDP_Text . " AlphaESS_BatC4\@" .$BatC4;
+	$UDP_Text = $UDP_Text . " AlphaESS_BatC5\@" .$BatC5;
+	$UDP_Text = $UDP_Text . " AlphaESS_BatC5\@" .$BatC6;
+	$UDP_Text = $UDP_Text . " AlphaESS_ErrInv\@" .$ErrInv;
+	$UDP_Text = $UDP_Text . " AlphaESS_ErrEms/\@" .$ErrEms;
+	$UDP_Text = $UDP_Text . " AlphaESS_ErrMeter\@" .$ErrMeter;
+	$UDP_Text = $UDP_Text . " AlphaEES_ErrBms\@" .$ErrBMS;
+	
+	LOGDEB "UDP Text: $UDP_Text";
+	$sock->send($UDP_Text) or do {
+		LOGERR "UDP Error: send!!!!!!";
+		#LOGEND "Operation finished NOT sucessfully.";
+		#Exit 1;
+		};
+	LOGOK "UDP Text erfolgreich gesendet.";
+	
 	# print $sock "DeviceName1\@$DeviceNameStr\; Serial1\@$SerialStr\; Program1\@$ProgrammStr\; Status1\@$StatusStr\; Time1\@$ZeitStr";
 	LOGDEB "Loxone IP: $LOX_IP";
 	LOGDEB "UDP Port: $UDP_Port";

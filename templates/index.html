@@ -67,7 +67,7 @@
 					</tr>
 					<tr>
 						<td width="25%">
-							<label id="labeludpsend"><TMPL_VAR BASIC.ALPHAESS_HTTPSEND></label>
+							<label id="labelhttpsend"><TMPL_VAR BASIC.ALPHAESS_HTTPSEND></label>
 						</td>
 						<td width="50%">
 						<fieldset>
@@ -102,6 +102,22 @@
 						<td width="25%">
 							&nbsp;
 							<font size="-1"><TMPL_VAR BASIC.ALPHAESS_HHTML></font>
+						</td>
+					</tr>
+					<tr>
+						<td width="25%">
+							<label id="labeludpsend"><TMPL_VAR BASIC.ALPHAESS_UDPSEND></label>
+						</td>
+						<td width="50%">
+						<fieldset>
+								<select  name="UDP_Send" data-role="flipswitch">
+									<option value="0"<TMPL_VAR NAME=UDPSENDNO>>Aus</option><option value="1" <TMPL_VAR NAME=UDPSENDYES>>Ein</option>\n
+								</select>
+							</fieldset>
+						</td>
+						<td width="25%">
+							&nbsp;
+							<font size="-1"><TMPL_VAR BASIC.ALPHAESS_HUDPSEND></font>
 						</td>
 					</tr>
 					<tr>
